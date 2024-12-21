@@ -1,0 +1,91 @@
+name: Build OpenWrt Firmware
+
+on:
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      # 检出代码
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      # 初始化编译环境
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+          TZ: Asia/Shanghai
+        run: |
+          sudo -E apt-get update
+          sudo -E apt-get -y install ack antlr3 asciidoc autoconf automake autopoint binutils bison \
+            build-essential bzip2 ccache clang cmake cpio curl device-tree-compiler flex gawk gettext \
+            gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev \
+            libfuse-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev \
+            libpython3-dev libreadline-dev libssl-dev libtool llvm lrzsz genisoimage msmtp ninja-build \
+            p7zip p7zip-full patch pkgconf python3 python3-pyelftools python3-setuptools qemu-utils \
+            rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto \
+            xxd zlib1g-dev
+          sudo timedatectl set-timezone "${TZ}"
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      # 克隆 Lede 源码
+      - name: Clone Lede source
+        run: |
+          git clone -q --single-branch --depth=1 --branch=master https://github.com/coolsnowwolf/lede openwrt
+          cd openwrt/
+          sed -i 's|src-git luci https://github.com/openwrt/luci;openwrt-23.05|src-git luci https://github.com/openwrt/luci|g' feeds.conf.default
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      # 更新并安装 feeds
+      - name: Update and install feeds
+        run: |
+          cd openwrt/
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          
+
+      # 加载根目录下的配置文件
+      - name: Load custom configuration
+        run: |
+          cd openwrt
+          cp "${GITHUB_WORKSPACE}/config" .config
+
+      # 下载包
+      - name: Download packages
+        run: |
+          cd openwrt/
+          make defconfig
+          make download -j$(nproc)
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      # 编译固件
+      - name: Build firmware
+        run: |
+          cd openwrt/
+          echo -e "$(nproc) thread compile"
+          make -j$(($(nproc) + 1)) 
+          echo "status=success" >> ${GITHUB_OUTPUT}
+
+      # 检查空间使用情况
+      - name: Check space usage
+        run: df -hT
+
+      # 上传编译结果
+      - name: Upload firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: lede-firmware
+          path: openwrt/bin/targets
+
+      # 上传二进制文件
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: lede-binaries
+          path: openwrt/bin
