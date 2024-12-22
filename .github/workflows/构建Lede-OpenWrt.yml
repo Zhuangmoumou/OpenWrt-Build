@@ -56,12 +56,11 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            openwrt/dl           # 下载的包文件目录
             openwrt/tmp          # 临时编译文件目录
             openwrt/build_dir    # 编译结果目录
             openwrt/staging_dir  # 工具链和临时库
             .ccache              # ccache 缓存
-          key: ${{ runner.os }}-openwrt-cache-${{ hashFiles('**/feeds.conf.default') }}
+          key: ${{ runner.os }}-openwrt-cache-${{ hashFiles('**/.config') }}
           restore-keys: |
             ${{ runner.os }}-openwrt-cache-
 
