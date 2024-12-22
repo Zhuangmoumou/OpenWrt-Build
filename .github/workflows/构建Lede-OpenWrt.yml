@@ -84,7 +84,7 @@ jobs:
         run: |
           cd openwrt/
           echo -e "$(nproc) thread compile"
-          make -j$(($(nproc) + 1)) 
+          make -j$(($(nproc) + 1))
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       # 检查空间使用情况
@@ -93,7 +93,7 @@ jobs:
 
       # 上传dl
       - name: Upload firmware
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lede-dl
           path: openwrt/dl
