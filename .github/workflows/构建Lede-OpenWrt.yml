@@ -79,16 +79,16 @@ jobs:
       - name: Check space usage
         run: df -hT
 
-      # 上传编译结果
+      # 上传dl
       - name: Upload firmware
         uses: actions/upload-artifact@v3
         with:
-          name: lede-firmware
-          path: openwrt/bin/targets
+          name: lede-dl
+          path: openwrt/dl
 
-      # 上传二进制文件
+      # 上传编译结果
       - name: Upload binaries
         uses: actions/upload-artifact@v3
         with:
-          name: lede-binaries
+          name: lede-bin
           path: openwrt/bin
