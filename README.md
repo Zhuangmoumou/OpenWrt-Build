@@ -16,12 +16,29 @@
 
 ### **注意！** 免费用户的Actions Runner空间为73G，请注意你的编译时所需的大小
 
-### 参考用量（一次编译完后）
+### 参考用量
+
+- 编译前
 
 ```
 Run df -hT
 Filesystem     Type   Size  Used Avail Use% Mounted on
-/dev/root      ext4    73G   53G   21G  72% /
+/dev/root      ext4    73G   33G   40G  46% /
+tmpfs          tmpfs  7.9G  172K  7.9G   1% /dev/shm
+tmpfs          tmpfs  3.2G  1.1M  3.2G   1% /run
+tmpfs          tmpfs  5.0M     0  5.0M   0% /run/lock
+/dev/sda15     vfat   105M  6.1M   99M   6% /boot/efi
+/dev/sdb1      ext4    74G  4.1G   66G   6% /mnt
+tmpfs          tmpfs  1.6G   12K  1.6G   1% /run/user/1001
+tmpfs          tmpfs  7.9G     0  7.9G   0% /run/qemu
+```
+
+- 编译后（添加一些插件）
+
+```
+Run df -hT
+Filesystem     Type   Size  Used Avail Use% Mounted on
+/dev/root      ext4    73G   59G   14G  81% /
 tmpfs          tmpfs  7.9G  172K  7.9G   1% /dev/shm
 tmpfs          tmpfs  3.2G  1.1M  3.2G   1% /run
 tmpfs          tmpfs  5.0M     0  5.0M   0% /run/lock
