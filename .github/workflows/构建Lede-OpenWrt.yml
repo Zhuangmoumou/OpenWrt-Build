@@ -44,6 +44,10 @@ jobs:
           sed -i 's|src-git luci https://github.com/openwrt/luci;openwrt-23.05|src-git luci https://github.com/openwrt/luci|g' feeds.conf.default
           echo "status=success" >> ${GITHUB_OUTPUT}
 
+      # 检查空间使用情况
+      - name: Check space usage
+        run: df -hT
+
       # 更新并安装 feeds
       - name: Update and install feeds
         run: |
