@@ -52,7 +52,7 @@ jobs:
       # 更新并安装 feeds
       - name: Update and install feeds
         run: |
-          cd openwrt/
+          cd lede/
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
