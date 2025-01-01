@@ -7,7 +7,7 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  build:
+  Build-Lede:
     runs-on: ubuntu-22.04
 
     steps:
