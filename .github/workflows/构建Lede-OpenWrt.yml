@@ -38,11 +38,9 @@ jobs:
       # 克隆 Lede 源码
       - name: Clone Lede source
         run: |
-          git clone -q --single-branch --depth=1 --branch=master https://github.com/coolsnowwolf/lede
-          cd lede/
-          sed -i 's|src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci.git|g' feeds.conf.default
-          sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
-          sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+          git clone -q --single-branch --depth=1 --branch=master https://github.com/coolsnowwolf/lede openwrt
+          cd openwrt/
+          sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       # 检查空间使用情况
@@ -52,29 +50,42 @@ jobs:
       # 更新并安装 feeds
       - name: Update and install feeds
         run: |
-          cd lede/
+          cd openwrt/
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       # 加载根目录下的配置文件
       - name: Load custom configuration
         run: |
-          cd lede
+          cd openwrt
           cp "${GITHUB_WORKSPACE}/config" .config
 
       # 下载包
       - name: Download packages
         run: |
-          cd lede/
+          cd openwrt/
           make defconfig
           make download -j$(nproc)
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
 
+     # 设置缓存
+      - name: Cache build dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            openwrt/tmp          # 临时编译文件目录
+            openwrt/build_dir    # 编译结果目录
+            openwrt/staging_dir  # 工具链和临时库
+            .ccache              # ccache 缓存
+          key: ${{ runner.os }}-openwrt-cache-${{ hashFiles('**/.config') }}
+          restore-keys: |
+            ${{ runner.os }}-openwrt-cache-
+
       # 编译固件
       - name: Build firmware
         run: |
-          cd lede/
+          cd openwrt/
           echo -e "$(nproc) thread compile"
           make -j$(($(nproc) + 1))
           echo "status=success" >> ${GITHUB_OUTPUT}
@@ -97,7 +108,7 @@ jobs:
           path: openwrt/dl
 
       # 上传编译结果
-      - name: Upload bin folders
+      - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: lede-bin
