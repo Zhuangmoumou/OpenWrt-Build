@@ -19,7 +19,6 @@ on:
 
       armbian_mini:
         description: '是否选择minimal版'
-        default: no
 
 jobs:
   build:
