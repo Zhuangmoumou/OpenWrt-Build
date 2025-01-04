@@ -23,6 +23,9 @@ jobs:
     steps:
     - name: Install dependencies
       run: |
+        docker rmi `docker images -q`
+        [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
+        sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
         sudo apt-get update
         sudo apt-get install -y \
           build-essential \
