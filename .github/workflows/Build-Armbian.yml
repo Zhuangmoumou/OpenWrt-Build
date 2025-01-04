@@ -1,0 +1,65 @@
+name: Build Armbian
+
+on:
+  workflow_dispatch:  # 手动触发工作流
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          git \
+          curl \
+          wget \
+          flex \
+          bison \
+          gawk \
+          gcc \
+          g++ \
+          make \
+          libc6-dev \
+          libncurses5-dev \
+          libssl-dev \
+          qemu-user-static \
+          debootstrap \
+          libxml2-utils \
+          rsync \
+          zip \
+          unzip \
+          bc \
+          device-tree-compiler \
+          u-boot-tools \
+          pv \
+          python3 \
+          python3-serial \
+          python3-pip \
+          dosfstools \
+          mtools \
+          parted \
+          liblz4-tool \
+          lzop \
+          zstd
+
+    - name: Configure build
+      run: |
+        git clone --depth=1 --branch=main https://github.com/armbian/build.git
+        cd build
+        ./compile.sh \
+          BOARD=hinlink-ht2 \
+          BRANCH=current \
+          RELEASE=noble \
+          BUILD_MINIMAL=no \
+          BUILD_DESKTOP=no \
+          KERNEL_CONFIGURE=no \
+          COMPRESS_OUTPUTIMAGE=img
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: armbian-images
+        path: build/output/images/
