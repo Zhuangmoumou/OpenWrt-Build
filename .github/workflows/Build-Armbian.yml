@@ -19,13 +19,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
+
+    # 初始化环境
     - name: Install dependencies
       run: |
-        docker rmi `docker images -q`
-        [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
-        sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
         sudo apt-get update
         sudo apt-get install -y \
           build-essential \
@@ -65,6 +63,7 @@ jobs:
     - name: Check space usage
       run: df -hT
 
+    # 开始构建
     - name: Armbian build
       run: |
         git clone --depth=1 --branch=main https://github.com/armbian/build.git
@@ -83,8 +82,9 @@ jobs:
     - name: Check space usage
       run: df -hT
 
+    # 上传构建结果
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: armbian-${{ github.event.inputs.RELEASE }}
+        name: Armbian-${{ github.event.inputs.RELEASE }}
         path: build/output/images/
