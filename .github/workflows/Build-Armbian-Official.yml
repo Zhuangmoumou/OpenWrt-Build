@@ -323,7 +323,7 @@ jobs:
 
       - uses: armbian/build@main
         with:
-          armbian_token:              "${{secrets.GHB_TOKEN}}"
+          armbian_token:              "${{secrets.GITHUB_TOKEN}}"
           armbian_target:             "${{inputs.armbian_target}}"
           armbian_release:            "${{inputs.armbian_release}}"
           armbian_kernel_branch:      "${{inputs.armbian_kernel_branch}}"
@@ -333,3 +333,4 @@ jobs:
           armbian_release_body:       "Virtual images for x86 and arm64"
           armbian_pgp_key:            "${{secrets.GPG_KEY1}}"
           armbian_pgp_password:       "${{secrets.GPG_PASSPHRASE1}}"
+          armbian_version: "${{inputs.armbian_version}}"
