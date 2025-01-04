@@ -1,7 +1,19 @@
 name: Build Armbian
 
 on:
-  workflow_dispatch:  # 手动触发工作流
+  workflow_dispatch:
+    inputs:
+      RELEASE:
+        description: '选择发行版'
+        required: true
+        default: 'nobe'  # 默认值
+        options:
+          - oracular  # Ubuntu 24.10
+          - noble     # Ubuntu 24.04
+          - jammy     # Ubuntu 22.04 LTS
+          - bookworm  # Debian 12
+          - bullseye  # Debian 11
+          - sid       # Debian unstable
 
 jobs:
   build:
@@ -45,18 +57,27 @@ jobs:
           lzop \
           zstd
 
-    - name: Configure build
+    # 检查空间使用情况
+    - name: Check space usage
+      run: df -hT
+
+    - name: Armbian build
       run: |
         git clone --depth=1 --branch=main https://github.com/armbian/build.git
         cd build
         ./compile.sh \
           BOARD=hinlink-ht2 \
-          BRANCH=current \
-          RELEASE=noble \
+          BRANCH=vendor \
+          KERNEL_TARGET='vendor' \
+          RELEASE=${{ github.event.inputs.RELEASE }} \
           BUILD_MINIMAL=no \
           BUILD_DESKTOP=no \
           KERNEL_CONFIGURE=no \
           COMPRESS_OUTPUTIMAGE=img
+
+    # 检查空间使用情况
+    - name: Check space usage
+      run: df -hT
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
