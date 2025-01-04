@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       RELEASE:
+        type: choice
         description: '选择发行版'
         required: true
         default: 'nobe'  # 默认值
