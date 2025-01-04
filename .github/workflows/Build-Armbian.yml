@@ -15,6 +15,7 @@ on:
           - bookworm  # Debian 12
           - bullseye  # Debian 11
           - sid       # Debian unstable
+          - trixie    # Debian Trixe
 
 jobs:
   build:
