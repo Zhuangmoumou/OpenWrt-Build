@@ -323,7 +323,7 @@ jobs:
 
       - uses: armbian/build@main
         with:
-          armbian_token:              "${{secrets.GITHUB_TOKEN}}"
+          armbian_token:              "${{secrets.GHB_TOKEN}}"
           armbian_target:             "${{inputs.armbian_target}}"
           armbian_release:            "${{inputs.armbian_release}}"
           armbian_kernel_branch:      "${{inputs.armbian_kernel_branch}}"
