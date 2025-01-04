@@ -23,7 +23,6 @@ on:
         options:
           - no
           - yes
-        default: "no"
 
 jobs:
   build:
