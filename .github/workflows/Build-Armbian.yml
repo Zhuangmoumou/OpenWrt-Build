@@ -18,12 +18,11 @@ on:
           - trixie    # Debian Trixe
 
       armbian_mini:
-        type: choice
         description: '是否选择minimal版'
         options:
           - no
           - yes
-
+        default: no
 jobs:
   build:
     runs-on: ubuntu-latest
