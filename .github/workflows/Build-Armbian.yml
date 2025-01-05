@@ -46,7 +46,7 @@ jobs:
         sudo -E apt-get clean
         #sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
         #sudo rm -rf ~/{.cargo,.dotnet,.rustup}
-        sudo timedatectl set-timezone "${TZ}"
+        sudo timedatectl set-timezone "Shanghai"
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     - name: Create simulated physical disk
