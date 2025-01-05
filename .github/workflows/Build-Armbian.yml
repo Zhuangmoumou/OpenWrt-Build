@@ -88,6 +88,7 @@ jobs:
           BUILD_DESKTOP=no \
           KERNEL_CONFIGURE=no \
           EXPERT=yes \
+          USE_CONTAINER=no \
           COMPRESS_OUTPUTIMAGE=img
 
     # 检查空间使用情况
