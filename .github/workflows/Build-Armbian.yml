@@ -31,7 +31,8 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        docker rmi $(docker images -q) 2>/dev/null
+        sudo systemctl is-active docker || sudo systemctl start docker
+        docker rmi $(docker images -q) 2>/dev/null || true
         [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
         sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
         sudo swapoff -a
