@@ -40,8 +40,10 @@ jobs:
       run: df -hT
 
     # 克隆源码
-    - name: Clone source code
-      run: git clone --single-branch --depth=1 --branch=main https://github.com/armbian/build.git
+    #- name: Clone source code
+    #  run: |
+    #    rm -rf build
+    #    git clone --single-branch --depth=1 --branch=main https://github.com/armbian/build.git
 
     # 开始构建
     - name: Armbian build
