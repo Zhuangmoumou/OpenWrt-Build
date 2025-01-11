@@ -30,9 +30,9 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo apt -y update
-        sudo apt -y upgrade
-        sudo apt clean
+        sudo -E apt -y update
+        sudo -E apt -y upgrade
+        sudo -E apt clean
         echo "status=success" >> ${GITHUB_OUTPUT}
 
     # 检查空间使用情况
