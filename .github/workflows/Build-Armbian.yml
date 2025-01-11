@@ -106,5 +106,5 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Armbian-${{ github.event.inputs.RELEASE }}-mini-${{ github.event.inputs.armbian_mini }}
+        name: Armbian-${{ github.event.inputs.RELEASE }}-${{ github.event.inputs.armbian_mini }}-mini
         path: build/output/images/
