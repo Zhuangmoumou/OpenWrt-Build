@@ -1,0 +1,85 @@
+name: Build Armbian
+
+on:
+  workflow_dispatch:
+    inputs:
+      RELEASE:
+        type: choice
+        description: '选择发行版'
+        required: true
+        default: 'nobe'  # 默认值
+        options:
+          - oracular  # Ubuntu 24.10
+          - noble     # Ubuntu 24.04
+          - jammy     # Ubuntu 22.04 LTS
+          - bookworm  # Debian 12
+          - bullseye  # Debian 11
+          - sid       # Debian unstable
+          - trixie    # Debian Trixe
+
+      armbian_mini:
+        description: '是否选择minimal版(no/yes)'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    # 初始化环境
+    - name: Initialization environment
+      id: init
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+#        sudo systemctl is-active docker || sudo systemctl start docker
+#        docker rmi $(docker images -q) 2>/dev/null || true
+#        [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
+        #sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android 2>/dev/null
+        #sudo swapoff -a
+        #sudo rm -f /swapfile /mnt/swapfile
+        sudo -E apt-get -y update
+        #sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+        #sudo -E apt-get -y install $(curl -fsSL https://is.gd/depend_ubuntu2204_armbian)
+#        sudo -E systemctl daemon-reload
+        sudo -E apt-get -y full-upgrade
+#        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+        #sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+        #sudo rm -rf ~/{.cargo,.dotnet,.rustup}
+        sudo -E timedatectl set-timezone "Asia/Shanghai"
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
+    # 检查空间使用情况
+    - name: Check space usage
+      run: df -hT
+
+    # 克隆源码
+    - name: Clone source code
+      run: git clone --single-branch --depth=1 --branch=main https://github.com/armbian/build.git
+
+    # 开始构建
+    - name: Armbian build
+      run: |
+        cd build
+        ./compile.sh \
+          BOARD=hinlink-ht2 \
+          BRANCH=vendor \
+          KERNEL_TARGET='vendor' \
+          RELEASE=${{ github.event.inputs.RELEASE }} \
+          BUILD_MINIMAL=${{ github.event.inputs.armbian_mini }} \
+          BUILD_DESKTOP=no \
+          KERNEL_CONFIGURE=no \
+          EXPERT=yes \
+          USE_CONTAINER=no \
+          COMPRESS_OUTPUTIMAGE=img
+
+    # 检查空间使用情况
+    - name: Check space usage
+      run: df -hT
+
+    # 上传构建结果
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Armbian-${{ github.event.inputs.RELEASE }}-mini${{ github.event.inputs.armbian_mini }}
+        path: build/output/images/
