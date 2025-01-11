@@ -47,7 +47,7 @@ jobs:
     - name: Armbian build
       run: |
         cd build
-        ./compile.sh \
+        sudo ./compile.sh \
           BOARD=hinlink-ht2 \
           BRANCH=vendor \
           KERNEL_TARGET='vendor' \
