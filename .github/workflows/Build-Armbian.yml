@@ -93,6 +93,7 @@ jobs:
           RELEASE=${{ github.event.inputs.RELEASE }} \
           BUILD_MINIMAL=${{ github.event.inputs.armbian_mini }} \
           BUILD_DESKTOP=no \
+          PREFER_DOCKER=no \
           KERNEL_CONFIGURE=no \
           USE_CONTAINER=no \
           COMPRESS_OUTPUTIMAGE=img
