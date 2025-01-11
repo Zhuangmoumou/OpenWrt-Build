@@ -73,10 +73,17 @@ jobs:
 
     # 克隆源码
     - name: Clone source code
-      run: git clone --single-branch --depth=1 --branch=main https://github.com/armbian/build.git
+      id: down
+      working-directory: /builder
+      run: |
+        git clone -q --single-branch --depth=1 --branch=main https://github.com/armbian/build.git build
+        ln -sf /builder/build ${GITHUB_WORKSPACE}/build
+        echo "status=success" >> ${GITHUB_OUTPUT}
 
     # 开始构建
     - name: Armbian build
+      id: compile
+      working-directory: /builder
       run: |
         cd build
         ./compile.sh \
@@ -87,7 +94,6 @@ jobs:
           BUILD_MINIMAL=${{ github.event.inputs.armbian_mini }} \
           BUILD_DESKTOP=no \
           KERNEL_CONFIGURE=no \
-          EXPERT=yes \
           USE_CONTAINER=no \
           COMPRESS_OUTPUTIMAGE=img
 
