@@ -1,33 +1,27 @@
 name: Build BandTOTP APK
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:  # 支持手动触发
 
 jobs:
   build:
     name: Build BandTOTP APK
-    runs-on: ubuntu-22.04  # ARM64 基于 Ubuntu 的环境
-    container: arm64v8/openjdk:11  # ARM64 OpenJDK 镜像
+    runs-on: ubuntu-latest
 
     steps:
-      # 1. 克隆代码仓库
-      - name: Clone BandTOTP-Android Repository
-        run: |
-          git clone https://github.com/Dustbin-lst/BandTOTP-Android.git
-          cd BandTOTP-Android
+      # 1. 检出代码
+      - name: Checkout BandTOTP-Android Repository
+        uses: actions/checkout@v3
+        with:
+          repository: Dustbin-lst/BandTOTP-Android
+          path: BandTOTP-Android
 
-      # 2. 设置 Java 环境
+      # 2. 设置 JDK 环境
       - name: Setup JDK 11
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 11
-          architecture: arm64
 
       # 3. 下载并安装 Android SDK
       - name: Install Android SDK
