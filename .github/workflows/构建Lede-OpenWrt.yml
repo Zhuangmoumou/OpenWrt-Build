@@ -35,12 +35,33 @@ jobs:
           sudo -E timedatectl set-timezone "Asia/Shanghai"
           echo "status=success" >> ${GITHUB_OUTPUT}
 
+      - name: Create simulated physical disk
+        run: |
+          mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
+          root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
+          sudo truncate -s "${mnt_size}"G /mnt/mnt.img
+          sudo truncate -s "${root_size}"G /root.img
+          sudo losetup /dev/loop6 /mnt/mnt.img
+          sudo losetup /dev/loop7 /root.img
+          sudo pvcreate /dev/loop6
+          sudo pvcreate /dev/loop7
+          sudo vgcreate github /dev/loop6 /dev/loop7
+          sudo lvcreate -n runner -l 100%FREE github
+          sudo mkfs.xfs /dev/github/runner
+          sudo mkdir -p /builder
+          sudo mount /dev/github/runner /builder
+          sudo chown -R runner.runner /builder
+          df -Th
+
       # 克隆 Lede 源码
       - name: Clone Lede source
+        id: down
+        working-directory: /builder
         run: |
           git clone --single-branch --depth=1 --branch=master https://github.com/coolsnowwolf/lede openwrt
-          cd openwrt/
-          sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
+          ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
+          #cd openwrt/
+          #sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       # 检查空间使用情况
@@ -49,6 +70,8 @@ jobs:
 
       # 更新并安装 feeds
       - name: Update and install feeds
+        id: feeds
+        working-directory: /builder
         run: |
           cd openwrt/
           ./scripts/feeds update -a
@@ -56,12 +79,16 @@ jobs:
 
       # 加载根目录下的配置文件
       - name: Load custom configuration
+        id: cpconfig
+        working-directory: /builder
         run: |
-          cd openwrt
+          cd openwrt/
           cp "${GITHUB_WORKSPACE}/config" .config
 
       # 下载包
       - name: Download packages
+        id: dl
+        working-directory: /builder
         run: |
           cd openwrt/
           make defconfig
@@ -70,20 +97,22 @@ jobs:
           find dl -size -1024c -exec rm -f {} \;
 
      # 设置缓存
-      - name: Cache build dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            openwrt/tmp          # 临时编译文件目录
-            openwrt/build_dir    # 编译结果目录
-            openwrt/staging_dir  # 工具链和临时库
-            .ccache              # ccache 缓存
-          key: ${{ runner.os }}-openwrt-cache-${{ hashFiles('**/.config') }}
-          restore-keys: |
-            ${{ runner.os }}-openwrt-cache-
+     # - name: Cache build dependencies
+     #   uses: actions/cache@v3
+     #   with:
+     #     path: |
+     #       openwrt/tmp          # 临时编译文件目录
+     #       openwrt/build_dir    # 编译结果目录
+     #       openwrt/staging_dir  # 工具链和临时库
+     #       .ccache              # ccache 缓存
+     #     key: ${{ runner.os }}-openwrt-cache-${{ hashFiles('**/.config') }}
+     #     restore-keys: |
+     #       ${{ runner.os }}-openwrt-cache-
 
       # 编译固件
       - name: Build firmware
+        id: build
+        working-directory: /builder
         run: |
           cd openwrt/
           echo -e "$(nproc) thread compile"
