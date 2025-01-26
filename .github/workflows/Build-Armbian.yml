@@ -9,6 +9,7 @@ on:
         required: true
         default: 'nobe'  # 默认值
         options:
+          - plucky    # Ubuntu 25.04
           - oracular  # Ubuntu 24.10
           - noble     # Ubuntu 24.04
           - jammy     # Ubuntu 22.04 LTS
