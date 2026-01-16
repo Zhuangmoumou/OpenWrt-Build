@@ -73,11 +73,11 @@ jobs:
           git clone -b 1.25 https://github.com/kenzok8/golang feeds/packages/lang/golang
           ./scripts/feeds install -a
           ###
-          sed -i 's/192.168.1.1/192.168.31.11/g' package/base-files/files/bin/config_generate
-          sed -i "/^[[:space:]]*set network.\$1.netmask='\$netm'/a\\
-          \t\t\t\tset network.\$1.gateway='192.168.31.1'\\
-          \t\t\t\tset network.\$1.dns='127.0.0.1 223.5.5.5 8.8.8.8'
-          " package/base-files/files/bin/config_generate
+          #sed -i 's/192.168.1.1/192.168.31.11/g' package/base-files/files/bin/config_generate
+          #sed -i "/^[[:space:]]*set network.\$1.netmask='\$netm'/a\\
+          #\t\t\t\tset network.\$1.gateway='192.168.31.1'\\
+          #\t\t\t\tset network.\$1.dns='127.0.0.1 223.5.5.5 8.8.8.8'
+          #" package/base-files/files/bin/config_generate
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       # 检查空间使用情况
