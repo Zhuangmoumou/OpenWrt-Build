@@ -53,13 +53,17 @@ jobs:
           sudo chown -R runner.runner /builder
           df -Th
 
-      # 克隆 Lede 源码
+      # 克隆源码
       - name: Clone Lede source
         id: down
         working-directory: /builder
         run: |
+<<<<<<< HEAD
           #git clone --single-branch --depth=1 --branch=master https://github.com/coolsnowwolf/lede openwrt
           git clone -b openwrt-24.10 --depth=1 https://github.com/immortalwrt/immortal.git openwrt
+=======
+          git clone --single-branch --depth=1 --branch=master https://github.com/immortalwrt/immortalwrt openwrt
+>>>>>>> e4affd5b5374340d1b43e3135947a2fba0b9c577
           ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
           cd openwrt/
           ##sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
@@ -75,8 +79,13 @@ jobs:
           ###
           sed -i 's/192.168.1.1/192.168.31.11/g' package/base-files/files/bin/config_generate
           sed -i "/^[[:space:]]*set network.\$1.netmask='\$netm'/a\\
+<<<<<<< HEAD
           \t\t\t\tset network.\$1.gateway='192.168.31.1'\\
           \t\t\t\tset network.\$1.dns='127.0.0.1 223.5.5.5 8.8.8.8'
+=======
+              set network.\$1.gateway='192.168.3.1'\\
+              set network.\$1.dns='127.0.0.1 223.5.5.5 8.8.8.8'
+>>>>>>> e4affd5b5374340d1b43e3135947a2fba0b9c577
           " package/base-files/files/bin/config_generate
           echo "status=success" >> ${GITHUB_OUTPUT}
 
