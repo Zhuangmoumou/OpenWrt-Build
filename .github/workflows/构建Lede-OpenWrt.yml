@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v3
 
       # 初始化编译环境
-      - name: Initialization environment
+      - name: 初始化环境
         env:
           DEBIAN_FRONTEND: noninteractive
           TZ: Asia/Shanghai
@@ -28,14 +28,14 @@ jobs:
           sudo -E apt update
           sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo -E apt -y full-upgrade
-          sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+          sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev pv
           sudo -E systemctl daemon-reload
           sudo -E apt -y autoremove --purge
           sudo -E apt clean
           sudo -E timedatectl set-timezone "Asia/Shanghai"
           echo "status=success" >> ${GITHUB_OUTPUT}
 
-      - name: Create simulated physical disk
+      - name: 创建虚拟磁盘
         run: |
           mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
           root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
@@ -54,7 +54,7 @@ jobs:
           df -Th
 
       # 克隆源码
-      - name: Clone Lede source
+      - name: 克隆源码
         id: down
         working-directory: /builder
         run: |
@@ -81,11 +81,11 @@ jobs:
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       # 检查空间使用情况
-      - name: Check space usage
+      - name: 检查空间使用情况
         run: df -hT
 
       # 更新并安装 feeds
-      - name: Update and install feeds
+      - name: 更新并安装feeds
         id: feeds
         working-directory: /builder
         run: |
@@ -94,7 +94,7 @@ jobs:
           ./scripts/feeds install -a
 
       # 加载根目录下的配置文件
-      - name: Load custom configuration
+      - name: 加载配置文件
         id: cpconfig
         working-directory: /builder
         run: |
@@ -102,7 +102,7 @@ jobs:
           cp "${GITHUB_WORKSPACE}/config" .config
 
       # 下载包
-      - name: Download packages
+      - name: make下载包
         id: dl
         working-directory: /builder
         run: |
@@ -126,17 +126,17 @@ jobs:
      #       ${{ runner.os }}-openwrt-cache-
 
       # 编译固件
-      - name: Build firmware
+      - name: 编译OpenWrt
         id: build
         working-directory: /builder
         run: |
           cd openwrt/
-          echo -e "$(nproc) thread compile"
-          make -j$(($(nproc) + 1))
+          echo -e "$(nproc) 线程编译"
+          make -j$(($(nproc) + 1)) | pv -l -s $(make -n | wc -l)
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       # 检查空间使用情况
-      - name: Check space usage
+      - name: 检查空间使用情况
         run: |
           echo "======================="
           echo "Space usage:"
@@ -149,12 +149,12 @@ jobs:
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: lede-dl
+          name: dl
           path: openwrt/dl
 
       # 上传编译结果
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: lede-bin
+          name: bin
           path: openwrt/bin
