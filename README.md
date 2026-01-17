@@ -8,7 +8,7 @@
 
 首先，这个仓库适用于会本地编译生成`.config`文件的人，如果你不会，还是先去学学一下吧
 
-本仓库使用的是ImmortalWrt源，想要使用其它源请在`.github/workflows/OpenWrt.yml`文件种修改`克隆源码`部分，然后自行修改底下的修改feeds.conf.default部分
+本仓库使用的是**ImmortalWrt**源，想要使用其它源请在`.github/workflows/OpenWrt.yml`文件中修改`克隆源码`部分，然后自行修改底下的修改feeds.conf.default软件包部分
 
 然后上传本地生成的`.config`文件到仓库根目录为`config`文件，然后启动Actions即可
 
