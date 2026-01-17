@@ -1,4 +1,4 @@
-# Lean的Lede OpenWrt编译器
+# 自定义OpenWrt编译器
 
 使用GitHub Actions在线编译器，快捷方便，编译时间看个人选择的软件所决定
 
@@ -8,7 +8,7 @@
 
 首先，这个仓库适用于会本地编译生成`.config`文件的人，如果你不会，还是先去学学一下吧
 
-本仓库使用的是Lede源，想要使用其它源请在`.github/workflows/构建Lede-OpenWrt.yml`文件种修改`Clone Lede source`部分，然后自行修改底下的修改feeds.conf.default部分
+本仓库使用的是ImmortalWrt源，想要使用其它源请在`.github/workflows/OpenWrt.yml`文件种修改`克隆源码`部分，然后自行修改底下的修改feeds.conf.default部分
 
 然后上传本地生成的`.config`文件到仓库根目录为`config`文件，然后启动Actions即可
 
