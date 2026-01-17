@@ -7,7 +7,7 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  Build-Lede:
+  Build:
     runs-on: ubuntu-22.04
 
     steps:
@@ -21,11 +21,13 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
           TZ: Asia/Shanghai
         run: |
+          echo '删除多余镜像'
           docker system prune -a -f
           [[ -n "${AGENT_TOOLSDIRECTORY}" ]] && sudo rm -rf "${AGENT_TOOLSDIRECTORY}"
           sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
           sudo -E apt-mark hold grub-efi-amd64-signed
           sudo -E apt update
+          echo '安装必要软件包'
           sudo -E apt -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo -E apt -y full-upgrade
           sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev pv
@@ -51,6 +53,7 @@ jobs:
           sudo mkdir -p /builder
           sudo mount /dev/github/runner /builder
           sudo chown -R runner.runner /builder
+          echo '=================================='
           df -Th
 
       # 克隆源码
@@ -63,16 +66,10 @@ jobs:
           ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
           cd openwrt/
           ##sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
-          #添加软件包，并删除重复项目
+          #添加软件包，并在下部更新feeds时删除重复项目
           sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
           sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
-          ./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-mosdns
-          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
-          rm -rf feeds/packages/utils/v2dat
-          rm -rf feeds/packages/lang/golang
-          git clone -b 1.25 https://github.com/kenzok8/golang feeds/packages/lang/golang
-          ./scripts/feeds install -a
-          ###
+          ###自行调整ip地址
           #sed -i 's/192.168.1.1/192.168.31.11/g' package/base-files/files/bin/config_generate
           #sed -i "/^[[:space:]]*set network.\$1.netmask='\$netm'/a\\
           #\t\t\t\tset network.\$1.gateway='192.168.31.1'\\
@@ -90,7 +87,11 @@ jobs:
         working-directory: /builder
         run: |
           cd openwrt/
-          ./scripts/feeds update -a
+          ./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-mosdns
+          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
+          rm -rf feeds/packages/utils/v2dat
+          rm -rf feeds/packages/lang/golang
+          git clone -b 1.25 https://github.com/kenzok8/golang feeds/packages/lang/golang
           ./scripts/feeds install -a
 
       # 加载根目录下的配置文件
