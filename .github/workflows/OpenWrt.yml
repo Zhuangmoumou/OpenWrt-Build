@@ -69,12 +69,6 @@ jobs:
           #添加软件包，并在下部更新feeds时删除重复项目
           sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
           sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
-          ###自行调整ip地址
-          #sed -i 's/192.168.1.1/192.168.31.11/g' package/base-files/files/bin/config_generate
-          #sed -i "/^[[:space:]]*set network.\$1.netmask='\$netm'/a\\
-          #\t\t\t\tset network.\$1.gateway='192.168.31.1'\\
-          #\t\t\t\tset network.\$1.dns='127.0.0.1 223.5.5.5 8.8.8.8'
-          #" package/base-files/files/bin/config_generate
           echo "status=success" >> ${GITHUB_OUTPUT}
 
       # 检查空间使用情况
@@ -101,6 +95,8 @@ jobs:
         run: |
           cd openwrt/
           cp "${GITHUB_WORKSPACE}/config" .config
+          cp "${GITHUB_WORKSPACE}/diy.sh" diy.sh
+          bash diy.sh
 
       # 下载包
       - name: make下载包
@@ -132,7 +128,9 @@ jobs:
         working-directory: /builder
         run: |
           cd openwrt/
+          echo "========================"
           echo -e "$(nproc) 线程编译"
+          echo "========================"
           make -j$(($(nproc) + 1)) | pv -l -s $(make -n | wc -l)
           echo "status=success" >> ${GITHUB_OUTPUT}
 
