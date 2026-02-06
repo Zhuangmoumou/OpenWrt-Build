@@ -61,11 +61,11 @@ jobs:
         id: down
         working-directory: /builder
         run: |
-          #git clone --single-branch --depth=1 --branch=master https://github.com/coolsnowwolf/lede openwrt
-          git clone -b openwrt-24.10 --depth=1 https://github.com/immortalwrt/immortalwrt openwrt
+          git clone --single-branch --depth=1 --branch=master https://github.com/coolsnowwolf/lede openwrt
+          #git clone -b openwrt-24.10 --depth=1 https://github.com/immortalwrt/immortalwrt openwrt
           ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
           cd openwrt/
-          ##sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
+          #sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
           #添加软件包，并在下部更新feeds时删除重复项目
           sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
           sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
@@ -81,11 +81,7 @@ jobs:
         working-directory: /builder
         run: |
           cd openwrt/
-          ./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-mosdns
-          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
-          rm -rf feeds/packages/utils/v2dat
-          rm -rf feeds/packages/lang/golang
-          git clone -b 1.25 https://github.com/kenzok8/golang feeds/packages/lang/golang
+          ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       # 加载根目录下的配置文件
