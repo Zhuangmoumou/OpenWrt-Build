@@ -65,7 +65,7 @@ jobs:
           #git clone -b openwrt-24.10 --depth=1 https://github.com/immortalwrt/immortalwrt openwrt
           ln -sf /builder/openwrt ${GITHUB_WORKSPACE}/openwrt
           cd openwrt/
-          #sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
+          sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
           #添加软件包，并在下部更新feeds时删除重复项目
           sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
           sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
