@@ -105,7 +105,7 @@ jobs:
         run: |
           cd openwrt/
           make defconfig
-          make download -j$(nproc)
+          make download -j8
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
 
@@ -131,7 +131,8 @@ jobs:
           echo "========================"
           echo -e "$(nproc) 线程编译"
           echo "========================"
-          make V=s -j$(($(nproc) + 1))
+          #make V=s -j$(($(nproc) + 1))
+          make V=s -j1
           echo "============检查bin目录============="
           ls -R /builder/openwrt/bin
           echo "status=success" >> ${GITHUB_OUTPUT}
