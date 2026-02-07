@@ -85,7 +85,7 @@ jobs:
           rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
           rm -rf feeds/packages/utils/v2dat
           rm -rf feeds/packages/lang/golang
-          git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+          git clone https://github.com/kenzok8/golang -b 1.25 feeds/packages/lang/golang
           ./scripts/feeds install -a
 
       # 加载根目录下的配置文件
@@ -131,8 +131,8 @@ jobs:
           echo "========================"
           echo -e "$(nproc) 线程编译"
           echo "========================"
-          #make V=s -j$(($(nproc) + 1))
-          make V=s -j1
+          make V=cs -j$(($(nproc) + 1))
+          #make V=s -j1
           echo "============检查bin目录============="
           ls -R /builder/openwrt/bin
           echo "status=success" >> ${GITHUB_OUTPUT}
