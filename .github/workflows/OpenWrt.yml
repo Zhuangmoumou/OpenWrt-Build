@@ -131,7 +131,7 @@ jobs:
           echo "========================"
           echo -e "$(nproc) 线程编译"
           echo "========================"
-          make -j$(($(nproc) + 1))
+          make V=s -j$(($(nproc) + 1))
           echo "============检查bin目录============="
           ls -R /builder/openwrt/bin
           echo "status=success" >> ${GITHUB_OUTPUT}
