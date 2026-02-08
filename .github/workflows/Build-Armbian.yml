@@ -9,6 +9,8 @@ on:
         required: true
         default: 'nobe'  # 默认值
         options:
+          - resolute  # Ubuntu 26.04
+          - questing  # Ubuntu 25.10
           - plucky    # Ubuntu 25.04
           - oracular  # Ubuntu 24.10
           - noble     # Ubuntu 24.04
