@@ -67,6 +67,7 @@ jobs:
           cd openwrt/
           #sed -i 's|src-git luci https://github.com/coolsnowwolf/luci;openwrt-23.05|src-git luci https://github.com/coolsnowwolf/luci|g' feeds.conf.default
           #添加软件包，并在下部更新feeds时删除重复项目
+          sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
           sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
           sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
           echo "status=success" >> ${GITHUB_OUTPUT}
@@ -105,7 +106,7 @@ jobs:
         run: |
           cd openwrt/
           make defconfig
-          make download -j8
+          make download -j16
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
 
@@ -131,10 +132,9 @@ jobs:
           echo "========================"
           echo -e "$(nproc) 线程编译"
           echo "========================"
-          #make V=s -j$(($(nproc) + 1))
+          make -j$(nproc) || make -j1 V=s
           #make V=w -j$(($(nproc) + 1))
           #make -j$(($(nproc) + 1)) V=s 2>&1 | grep -iE "error|warning|fail"
-          make V=s -j1
           echo "============检查bin目录============="
           ls -R /builder/openwrt/bin
           echo "status=success" >> ${GITHUB_OUTPUT}
