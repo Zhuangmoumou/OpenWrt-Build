@@ -113,7 +113,7 @@ jobs:
           echo "========================"
           echo -e "$(nproc) 线程编译"
           echo "========================"
-          make -j$(nproc) || make -j1 V=s
+          make -j$(nproc)
           #make V=w -j$(($(nproc) + 1))
           #make -j$(($(nproc) + 1)) V=s 2>&1 | grep -iE "error|warning|fail"
           echo "============检查bin目录============="
