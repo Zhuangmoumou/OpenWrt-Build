@@ -42,3 +42,4 @@ EOF
 # 3. 赋予脚本执行权限
 chmod +x files/etc/uci-defaults/99-custom-settings
 
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
