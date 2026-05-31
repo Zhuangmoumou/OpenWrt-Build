@@ -27,13 +27,6 @@ on:
         default: 'no'
         options:
           - no
-          - yes      armbian_mini:
-        type: choice
-        description: '是否选择minimal版(no/yes)'
-        required: true
-        default: 'no'
-        options:
-          - no
           - yes
 
 jobs:
