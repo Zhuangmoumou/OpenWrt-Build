@@ -7,7 +7,7 @@ on:
         type: choice
         description: '选择发行版'
         required: true
-        default: 'nobe'  # 默认值
+        default: 'noble'  # 默认值
         options:
           - resolute  # Ubuntu 26.04
           - questing  # Ubuntu 25.10
@@ -21,7 +21,20 @@ on:
           - trixie    # Debian Trixe
 
       armbian_mini:
+        type: choice
         description: '是否选择minimal版(no/yes)'
+        required: true
+        default: 'no'
+        options:
+          - no
+          - yes      armbian_mini:
+        type: choice
+        description: '是否选择minimal版(no/yes)'
+        required: true
+        default: 'no'
+        options:
+          - no
+          - yes
 
 jobs:
   build:
@@ -54,21 +67,53 @@ jobs:
 
     - name: Create simulated physical disk
       run: |
-        mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
-        root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
-        sudo truncate -s "${mnt_size}"G /mnt/mnt.img
-        sudo truncate -s "${root_size}"G /root.img
-        sudo losetup /dev/loop6 /mnt/mnt.img
-        sudo losetup /dev/loop7 /root.img
-        sudo pvcreate /dev/loop6
-        sudo pvcreate /dev/loop7
-        sudo vgcreate github /dev/loop6 /dev/loop7
+        set -e
+
+        sudo apt-get update
+        sudo apt-get install -y lvm2 xfsprogs
+
+        # 获取 /mnt 和 / 的可用空间，单位 GB
+        mnt_avail=$(df --output=avail -BG /mnt | tail -1 | tr -dc '0-9')
+        root_avail=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
+
+        mnt_size=$((mnt_avail - 1))
+        root_size=$((root_avail - 4))
+
+        if [ "$mnt_size" -le 1 ]; then
+          echo "/mnt 可用空间不足"
+          df -hT
+          exit 1
+        fi
+
+        if [ "$root_size" -le 1 ]; then
+          echo "/ 可用空间不足"
+          df -hT
+          exit 1
+        fi
+
+        sudo truncate -s "${mnt_size}G" /mnt/mnt.img
+        sudo truncate -s "${root_size}G" /root.img
+
+        # 自动分配空闲 loop 设备，不要固定 /dev/loop6 /dev/loop7
+        LOOP_MNT=$(sudo losetup --find --show /mnt/mnt.img)
+        LOOP_ROOT=$(sudo losetup --find --show /root.img)
+
+        echo "LOOP_MNT=${LOOP_MNT}"
+        echo "LOOP_ROOT=${LOOP_ROOT}"
+
+        sudo pvcreate "${LOOP_MNT}"
+        sudo pvcreate "${LOOP_ROOT}"
+
+        sudo vgcreate github "${LOOP_MNT}" "${LOOP_ROOT}"
         sudo lvcreate -n runner -l 100%FREE github
-        sudo mkfs.xfs /dev/github/runner
+
+        sudo mkfs.xfs -f /dev/github/runner
         sudo mkdir -p /builder
         sudo mount /dev/github/runner /builder
-        sudo chown -R runner.runner /builder
+        sudo chown -R runner:runner /builder
+
         df -Th
+        sudo losetup -a
 
     # 检查空间使用情况
     - name: Check space usage
